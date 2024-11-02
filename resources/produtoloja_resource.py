@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from models import db, ProdutoLoja, Produto, Loja
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 produtoloja_bp = Blueprint('produtoloja', __name__)
 class ProdutoLojaResource(Resource):
@@ -11,17 +11,31 @@ class ProdutoLojaResource(Resource):
     parser.add_argument('precoVenda', type=float, required=True, help="Preço de venda é obrigatório")
     @produtoloja_bp.route('/produtoloja', methods=['GET'])
     def get(self):
-        produtos_lojas = db.session.query(
+
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_page', default=10, type=int)
+
+        produtos_lojas_query = db.session.query(
             ProdutoLoja.id,
             ProdutoLoja.idProduto,
             ProdutoLoja.precoVenda,
             Loja.id.label("loja_id"),
             Loja.descricao.label("loja_descricao")
-        ).join(Loja, ProdutoLoja.idLoja == Loja.id).all()
+        ).join(Loja, ProdutoLoja.idLoja == Loja.id)
 
-        response = []
+        total_produtos = produtos_lojas_query .count()
+
+        produtos_lojas = produtos_lojas_query.offset((page - 1) * per_page).limit(per_page).all()
+
+        response = {
+            "total": total_produtos,
+            "page": page,
+            "per_page": per_page,
+            "produtos": []
+        }
+
         for produto_loja in produtos_lojas:
-            response.append({
+            response["produtos"].append({
                 "id": produto_loja.id,
                 "idProduto": produto_loja.idProduto,
                 "precoVenda": produto_loja.precoVenda,
