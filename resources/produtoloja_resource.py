@@ -11,10 +11,10 @@ class ProdutoLojaResource(Resource):
     parser.add_argument('precoVenda', type=float, required=True, help="Preço de venda é obrigatório")
     @produtoloja_bp.route('/produtoloja', methods=['GET'])
     def get(self):
+        page = request.args.get('page', default=1, type=int)  # Padrão para 1
+        per_page = request.args.get('per_page', default=10, type=int)  # Padrão para 10
 
-        page = request.args.get('page', default=1, type=int)
-        per_page = request.args.get('per_page', default=10, type=int)
-
+        # Consultar os dados com a paginação
         produtos_lojas_query = db.session.query(
             ProdutoLoja.id,
             ProdutoLoja.idProduto,
@@ -23,8 +23,10 @@ class ProdutoLojaResource(Resource):
             Loja.descricao.label("loja_descricao")
         ).join(Loja, ProdutoLoja.idLoja == Loja.id)
 
-        total_produtos = produtos_lojas_query .count()
+        # Calcular o total de produtos
+        total_produtos = produtos_lojas_query.count()
 
+        # Aplicar a paginação
         produtos_lojas = produtos_lojas_query.offset((page - 1) * per_page).limit(per_page).all()
 
         response = {
@@ -43,7 +45,6 @@ class ProdutoLojaResource(Resource):
             })
 
         return jsonify(response)
-
     @produtoloja_bp.route('/produtoloja', methods=['POST'])
     def post(self):
         args = self.parser.parse_args()
