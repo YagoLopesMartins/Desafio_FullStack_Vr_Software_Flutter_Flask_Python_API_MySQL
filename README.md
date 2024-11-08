@@ -81,9 +81,6 @@ POST /produtos
 ├── requirements.txt     # Lista de bibliotecas e tecnologias utilizadas
 ```
 
-<<<<<<< HEAD
 #### Para dúvidas ou contribuições, fique à vontade para abrir uma issue ou pull request ou entrar em contato no e-mail: yagolopesmartins777@gmail.com
 
-=======
 #### Para mais informações entrar em contato no e-mail: yagolopesmartins777@gmail.com
->>>>>>> 53d900e12280cb942718d944ceb2b002ba6b2a98
